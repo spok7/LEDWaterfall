@@ -37,9 +37,9 @@ class Waterfall: public Animation {
     void pulse_maker(Pulse *pulse, CHSV base_colour, CHSV target_colour, CHSV fade_rate, bool reverse_fade_rate) {
 
       // account for user error      
-      if (fade_rate.hue == 0) fade_rate.hue == 1;
-      if (fade_rate.sat == 0) fade_rate.sat == 1;
-      if (fade_rate.val == 0) fade_rate.val == 1;
+      if (fade_rate.hue == 0) fade_rate.hue = 1;
+      if (fade_rate.sat == 0) fade_rate.sat = 1;
+      if (fade_rate.val == 0) fade_rate.val = 1;
 
       // calculate animation length
       uint8_t hue_steps = ceil(abs((float) (target_colour.hue - base_colour.hue) / fade_rate.hue));
@@ -318,8 +318,81 @@ class OHML: public Animation{
 
     CHSV* getNext(uint8_t currID) {
       if (pos == 0) {
-        pos = len;
         if (/*run_amount > 1 &&*/ currID == funcID) {
+          pos = len;
+          --run_amount;
+          return strip[--pos];
+        } else{
+          return NULL;
+        }
+      } else {
+        return strip[--pos];
+      }
+    }
+};
+
+// a hardcoded animation
+class Leaf: public Animation{
+  
+  private:
+  
+    int
+      run_amount,
+      pos,
+      len;
+    CHSV
+      fg,
+      bg,
+      strip[23][STRIP_AMOUNT];
+      
+  public:
+
+    // constructor that initializes class variables and creates the animation
+    Leaf(uint8_t id, CHSV base, CHSV background, int num_runs = 1){
+      funcID = id;
+      fg = base;
+      bg = background;
+      run_amount = num_runs;
+      len = 23;
+      pos = 0;
+
+      if (STRIP_AMOUNT == 5) {
+      
+        CHSV temp_array[len][5] {
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+  
+          // leaf
+          {bg, bg, fg, bg, bg},
+          {bg, bg, fg, bg, bg},
+          {fg, fg, fg, fg, fg},
+          {bg, fg, fg, fg, bg},
+          {bg, bg, fg, bg, bg},
+
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg},
+          {bg, bg, bg, bg, bg}
+        };
+  
+        memcpy(strip, temp_array, sizeof(CHSV) * len * STRIP_AMOUNT);
+      }
+    }
+
+    CHSV* getNext(uint8_t currID) {
+      if (pos == 0) {
+        if (/*run_amount > 1 &&*/ currID == funcID) {
+          pos = len;
           --run_amount;
           return strip[--pos];
         } else{

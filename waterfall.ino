@@ -38,6 +38,22 @@ const CHSV ORANGE(150, 255, 255); // 255 (don't go below 32)
 const CHSV WHITE(150, 64, 32); // 32
 
 
+Waterfall *canadaDayFall;
+
+const CHSV CD_WATER(130, 180, 32);
+
+const CHSV CD_HIGHLIGHT(130, 90, 48);
+const CHSV CD_HIGHLIGHT_RATE(0, 15, 2);
+
+const CHSV CD_SHIMMER(130, 180, 32);
+const CHSV CD_SHIMMER_RATE(4, 0, 0);
+
+
+Leaf *leaf;
+
+const CHSV RED(150, 255, 255);
+
+
 /* 
  * HELPER METHODS
  * Do not use or edit.
@@ -120,7 +136,7 @@ void notifyThrottleState(uint8_t UserData, TH_STATE PrevState, TH_STATE State)  
 void notifyThrottleSpeed(uint8_t UserData, TH_STATE State, uint8_t Speed)                       {Serial.print("Speed: ");       Serial.println(Speed); dim_target = 2 * (127 - Speed);}
 void notifyThrottleDirection(uint8_t UserData, TH_STATE State, uint8_t Direction)               {Serial.print("Direction: ");   Serial.println(not_visible = Direction);}
 void notifyThrottleFunction(uint8_t UserData, uint8_t Function, uint8_t Value)                  {Serial.print("Function: ");    Serial.println(Function);
-                                                                                                 animation_selector = (Function < NUM_ANIMATIONS) ? Function : 0;}
+                                                                                                 animation_selector = (Function < NUM_ANIMATIONS) ? Function : animation_selector;}
 
 
 // used for printing and processing LocoNet packets
@@ -200,6 +216,8 @@ void setup() {
   // initialize Animation objects here; see possible Animations and their constructors in Animation.cpp
   waterfall = new Waterfall(0, WATER, HIGHLIGHT, SHIMMER, HIGHLIGHT_RATE, SHIMMER_RATE, false, false, 3, 7);
   ohml = new OHML(1, ORANGE, WHITE);
+  canadaDayFall = new Waterfall(2, CD_WATER, CD_HIGHLIGHT, CD_SHIMMER, CD_HIGHLIGHT_RATE, CD_SHIMMER_RATE, false, false, 3, 7);
+  leaf = new Leaf(3, RED, WHITE);
   
   Serial.println("Initialized Animations"); 
    
@@ -238,5 +256,7 @@ void setup() {
 void loop() {
   animation_runner(waterfall);
   animation_runner(ohml);
+  animation_runner(canadaDayFall);
+  animation_runner(leaf);
 }
 

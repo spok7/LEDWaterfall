@@ -4,7 +4,7 @@
 #define STRIP_AMOUNT 5
 #define START 0               // position from where the water flows from
 
-#define NUM_ANIMATIONS 2
+#define NUM_ANIMATIONS 4
 
 #define DIM_PERCENT (65 * 2.56)
 #define DIM_RATE (5 * 2.56)
