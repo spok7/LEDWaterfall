@@ -40,18 +40,18 @@ const CHSV WHITE(150, 64, 32); // 32
 
 Waterfall *canadaDayFall;
 
-const CHSV CD_WATER(130, 180, 32);
+const CHSV CD_WATER(70, 180, 32);
 
-const CHSV CD_HIGHLIGHT(130, 90, 48);
-const CHSV CD_HIGHLIGHT_RATE(0, 15, 2);
+const CHSV CD_HIGHLIGHT(70, 180, 48);
+const CHSV CD_HIGHLIGHT_RATE(0, 25, 25);
 
-const CHSV CD_SHIMMER(130, 180, 32);
-const CHSV CD_SHIMMER_RATE(4, 0, 0);
+const CHSV CD_SHIMMER(70, 180, 32);
+const CHSV CD_SHIMMER_RATE(25, 0, 0);
 
 
 Leaf *leaf;
 
-const CHSV RED(150, 255, 255);
+const CHSV RED(130, 255, 255);
 
 
 /* 

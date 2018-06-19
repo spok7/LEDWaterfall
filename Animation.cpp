@@ -170,6 +170,11 @@ class Waterfall: public Animation {
 
       pulse_maker(highlight, base_col, highlight_col, highlight_rate, highlight_reversed);
       pulse_maker(shimmer, base_col, shimmer_col, shimmer_rate, shimmer_reversed);
+
+      Serial.print("Waterfall generated. Strips of lengths ");
+      Serial.print(highlight->len);
+      Serial.print(" and ");
+      Serial.print(shimmer->len);
     }
 
     CHSV* getNext(uint8_t currID) {
