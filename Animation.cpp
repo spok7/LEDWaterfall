@@ -1,4 +1,5 @@
 #include "constants.h"
+#include <MemoryFree.h>
 
 /*
  * Note to self:
@@ -23,13 +24,13 @@ class Waterfall: public Animation {
   private:
 
     CHSV *current_colours;                              // array of colours for the current row
-    int *positions;                                     // array containing position of each row in the animation
-    int *random_amount;                                 // tells strip how many times to play shimmer animation before highlight
-    int random_low_bound, random_high_bound;            // user-given range for generating a random value for random_amount
+    uint16_t *positions;                                // array containing position of each row in the animation
+    uint8_t *random_amount;                             // tells strip how many times to play shimmer animation before highlight
+    uint8_t random_low_bound, random_high_bound;        // user-given range for generating a random value for random_amount
 
     struct Pulse {
       CHSV *ani;
-      uint8_t len;
+      uint16_t len;
     } *highlight, *shimmer;                             // animation array with positions
 
 
@@ -103,7 +104,7 @@ class Waterfall: public Animation {
       }
 
       // fill other half of array by mirroring the initial half
-      for (int i = 0; i < (pulse->len - 1) / 2; ++i) {
+      for (uint16_t i = 0; i < (pulse->len - 1) / 2; ++i) {
         if (not reverse_fade_rate) {
           pulse->ani[pulse->len - 1 - i] = pulse->ani[i];
         } else {
@@ -115,20 +116,38 @@ class Waterfall: public Animation {
     // code for stepping through an animation array and adding randomness aspect
     void stepStrip(uint8_t strip_num) {
       if (positions[strip_num] == highlight->len + shimmer->len - 1) {
+        Serial.print(F("S -> "));
         if (random_amount[strip_num] == 1) {
+          Serial.print(F("H \t"));
           positions[strip_num] = 0;
           random_amount[strip_num] = random_low_bound + random8(random_high_bound - random_low_bound + 1);
           current_colours[strip_num] = highlight->ani[positions[strip_num]];
         } else {
+          Serial.print(F("S \t"));
           positions[strip_num] = highlight->len;
           --random_amount[strip_num];
           current_colours[strip_num] = shimmer->ani[positions[strip_num] - highlight->len];
         }
-      } else if (positions[strip_num] < highlight->len) {
-        current_colours[strip_num] = highlight->ani[positions[strip_num]];
       } else {
-        current_colours[strip_num] = shimmer->ani[positions[strip_num] - highlight->len];
+        if (positions[strip_num] < highlight->len) {
+          Serial.print(F("HILIGHT\t"));
+          current_colours[strip_num] = highlight->ani[positions[strip_num]];
+        } else {
+          Serial.print(F("SHIMMER\t"));
+          current_colours[strip_num] = shimmer->ani[positions[strip_num] - highlight->len];
+        }
+        ++positions[strip_num];
       }
+
+      Serial.print(F("P"));
+      Serial.print(positions[strip_num]);
+      Serial.print('\t');
+      Serial.print(current_colours[strip_num].hue);
+      Serial.print(' ');
+      Serial.print(current_colours[strip_num].sat);
+      Serial.print(' ');
+      Serial.print(current_colours[strip_num].val);
+      Serial.print('\t');
     }
 
     // stopping animation that halts each strip
@@ -157,9 +176,9 @@ class Waterfall: public Animation {
       shimmer = new Pulse();
       
       current_colours = new CHSV[STRIP_AMOUNT];
-      positions = new int[STRIP_AMOUNT];
+      positions = new uint16_t[STRIP_AMOUNT];
       
-      random_amount = new int[STRIP_AMOUNT];
+      random_amount = new uint8_t[STRIP_AMOUNT];
       random_low_bound = repeat_low_bound;
       random_high_bound = repeat_high_bound;
 
@@ -171,10 +190,32 @@ class Waterfall: public Animation {
       pulse_maker(highlight, base_col, highlight_col, highlight_rate, highlight_reversed);
       pulse_maker(shimmer, base_col, shimmer_col, shimmer_rate, shimmer_reversed);
 
-      Serial.print("Waterfall generated. Strips of lengths ");
+      Serial.print(F("Waterfall generated. Strips of lengths "));
       Serial.print(highlight->len);
-      Serial.print(" and ");
-      Serial.print(shimmer->len);
+      Serial.print(F(" and "));
+      Serial.println(shimmer->len);
+
+      Serial.println();
+
+      for (uint16_t i = 0; i < highlight->len; ++i) {
+        Serial.print(highlight->ani[i].hue);
+        Serial.print(' ');
+        Serial.print(highlight->ani[i].sat);
+        Serial.print(' ');
+        Serial.println(highlight->ani[i].val);
+      }
+
+      Serial.println();
+
+      for (uint16_t i = 0; i < shimmer->len; ++i) {
+        Serial.print(shimmer->ani[i].hue);
+        Serial.print(' ');
+        Serial.print(shimmer->ani[i].sat);
+        Serial.print(' ');
+        Serial.println(shimmer->ani[i].val);
+      }
+
+      Serial.println();
     }
 
     CHSV* getNext(uint8_t currID) {
@@ -184,27 +225,29 @@ class Waterfall: public Animation {
         // play regular animation
         for (int strip_num = 0; strip_num < STRIP_AMOUNT; ++strip_num) {
           stepStrip(strip_num);  
-          ++positions[strip_num];
         }
+        
+        Serial.println();
+        return current_colours;
   
       } else {
 
-        // check if animation is complete
-        bool complete = true;
-        for (int strip_num = 0; strip_num < STRIP_AMOUNT; ++strip_num) {
-          if (positions[strip_num] != 0) {
-            complete = false;
-            break;
-          }
-        }
+        // // check if animation is complete
+        // bool complete = true;
+        // for (int strip_num = 0; strip_num < STRIP_AMOUNT; ++strip_num) {
+        //   if (positions[strip_num] != 0) {
+        //     complete = false;
+        //     break;
+        //   }
+        // }
 
-        if (complete) return NULL;
+        // if (complete) return NULL;
 
         // play stopping animation
-        stop_quick();      
+        stop_quick();
+        return NULL;
       }
 
-      return current_colours;
     }
 };
 

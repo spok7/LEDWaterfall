@@ -129,13 +129,13 @@ void flow(int wait_time) {
 
 
 // user-defined callback functions
-void notifyThrottleAddress(uint8_t UserData, TH_STATE State, uint16_t Address, uint8_t Slot)    {Serial.print("Address: ");     Serial.println(Address);}
-void notifyThrottleSlotStatus(uint8_t UserData, uint8_t Status)                                 {Serial.print("Slot Status: "); Serial.println(Status);}
-void notifyThrottleError(uint8_t UserData, TH_ERROR Error)                                      {Serial.print("Error: ");       Serial.println(Throttle.getErrorStr(Error));}
-void notifyThrottleState(uint8_t UserData, TH_STATE PrevState, TH_STATE State)                  {Serial.print("State: ");       Serial.println(Throttle.getStateStr(State));}
-void notifyThrottleSpeed(uint8_t UserData, TH_STATE State, uint8_t Speed)                       {Serial.print("Speed: ");       Serial.println(Speed); dim_target = 2 * (127 - Speed);}
-void notifyThrottleDirection(uint8_t UserData, TH_STATE State, uint8_t Direction)               {Serial.print("Direction: ");   Serial.println(not_visible = Direction);}
-void notifyThrottleFunction(uint8_t UserData, uint8_t Function, uint8_t Value)                  {Serial.print("Function: ");    Serial.println(Function);
+void notifyThrottleAddress(uint8_t UserData, TH_STATE State, uint16_t Address, uint8_t Slot)    {Serial.print(F("Address: "));     Serial.println(Address);}
+void notifyThrottleSlotStatus(uint8_t UserData, uint8_t Status)                                 {Serial.print(F("Slot Status: ")); Serial.println(Status);}
+void notifyThrottleError(uint8_t UserData, TH_ERROR Error)                                      {Serial.print(F("Error: "));       Serial.println(Throttle.getErrorStr(Error));}
+void notifyThrottleState(uint8_t UserData, TH_STATE PrevState, TH_STATE State)                  {Serial.print(F("State: "));       Serial.println(Throttle.getStateStr(State));}
+void notifyThrottleSpeed(uint8_t UserData, TH_STATE State, uint8_t Speed)                       {Serial.print(F("Speed: "));       Serial.println(Speed); dim_target = 2 * (127 - Speed);}
+void notifyThrottleDirection(uint8_t UserData, TH_STATE State, uint8_t Direction)               {Serial.print(F("Direction: "));   Serial.println(not_visible = Direction);}
+void notifyThrottleFunction(uint8_t UserData, uint8_t Function, uint8_t Value)                  {Serial.print(F("Function: "));    Serial.println(Function);
                                                                                                  animation_selector = (Function < NUM_ANIMATIONS) ? Function : animation_selector;}
 
 
@@ -145,7 +145,7 @@ void lnUpdate() {
   if (LnPacket) {
     
     // First print out the packet in HEX
-    Serial.print("RX: ");
+    Serial.print(F("RX: "));
     uint8_t msgLen = getLnMsgSize(LnPacket);
     for (uint8_t x = 0; x < msgLen; x++)
     {
@@ -210,16 +210,15 @@ void setup() {
 
   FastLED.show();   //display strips to clear previous run
   
-  Serial.println("Initialized Strips");
-  
-  
+  Serial.println(F("Initialized Strips"));
+   
   // initialize Animation objects here; see possible Animations and their constructors in Animation.cpp
   waterfall = new Waterfall(0, WATER, HIGHLIGHT, SHIMMER, HIGHLIGHT_RATE, SHIMMER_RATE, false, false, 3, 7);
   ohml = new OHML(1, ORANGE, WHITE);
   canadaDayFall = new Waterfall(2, CD_WATER, CD_HIGHLIGHT, CD_SHIMMER, CD_HIGHLIGHT_RATE, CD_SHIMMER_RATE, false, false, 3, 7);
   leaf = new Leaf(3, RED, WHITE);
   
-  Serial.println("Initialized Animations"); 
+  Serial.println(F("Initialized Animations")); 
    
 
   // setup LocoNet and Throttle
@@ -227,29 +226,31 @@ void setup() {
   Throttle.init(0, 0, LOCO_ADDRESS);
 
   // attempt to initialize onto existing address
-  Serial.println("\tStealing Address");
+  Serial.println(F("\tStealing Address"));
   Throttle.stealAddress(LOCO_ADDRESS);
   lnUpdate();     // repeated to process possible errors
   lnUpdate();     // do not remove duplicate line
 
   // if address does not exist, create one
   if (Throttle.getState() == TH_ST_FREE) {
-    Serial.println("\nSetting Address");
+    Serial.println(F("\nSetting Address"));
     Throttle.setAddress(LOCO_ADDRESS);
   }
   lnUpdate();
 
-  Serial.println("Established connection with LocoNet");
+  Serial.println(F("Established connection with LocoNet"));
 
 
   // initialize variables that have been written over with the loconet update calls
   dim_current = 0;
-  animation_selector = 0;
+  animation_selector = 2;
 
-  Serial.println("Initialized Starting Configuration");
+  Serial.println(F("Initialized Starting Configuration"));
+
+  Serial.print(F("Memory Left: "));
+  Serial.println(freeMemory());
   
-  
-  Serial.println("\nExiting Setup\n");
+  Serial.println(F("\nExiting Setup\n"));
 }
 
 // continuous loop
