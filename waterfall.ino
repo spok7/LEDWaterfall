@@ -51,7 +51,7 @@ const CHSV CD_SHIMMER_RATE(25, 0, 0);
 
 Leaf *leaf;
 
-const CHSV RED(130, 255, 255);
+const CHSV RED(164, 255, 255);
 
 
 /* 

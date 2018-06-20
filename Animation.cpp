@@ -391,7 +391,7 @@ class Leaf: public Animation{
     CHSV
       fg,
       bg,
-      strip[23][STRIP_AMOUNT];
+      strip[24][STRIP_AMOUNT];
       
   public:
 
@@ -401,7 +401,7 @@ class Leaf: public Animation{
       fg = base;
       bg = background;
       run_amount = num_runs;
-      len = 23;
+      len = 24;
       pos = 0;
 
       if (STRIP_AMOUNT == 5) {
@@ -418,9 +418,12 @@ class Leaf: public Animation{
   
           // leaf
           {bg, bg, fg, bg, bg},
+          {bg, fg, fg, fg, bg},
           {bg, bg, fg, bg, bg},
+          {fg, bg, fg, bg, fg},
           {fg, fg, fg, fg, fg},
           {bg, fg, fg, fg, bg},
+          {bg, bg, fg, bg, bg},
           {bg, bg, fg, bg, bg},
 
           {bg, bg, bg, bg, bg},
