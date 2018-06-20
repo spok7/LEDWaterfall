@@ -243,7 +243,7 @@ void setup() {
 
   // initialize variables that have been written over with the loconet update calls
   dim_current = 0;
-  animation_selector = 2;
+  animation_selector = 0;
 
   Serial.println(F("Initialized Starting Configuration"));
 

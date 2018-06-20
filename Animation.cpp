@@ -116,38 +116,38 @@ class Waterfall: public Animation {
     // code for stepping through an animation array and adding randomness aspect
     void stepStrip(uint8_t strip_num) {
       if (positions[strip_num] == highlight->len + shimmer->len - 1) {
-        Serial.print(F("S -> "));
+        // Serial.print(F("S -> "));
         if (random_amount[strip_num] == 1) {
-          Serial.print(F("H \t"));
+          // Serial.print(F("H \t"));
           positions[strip_num] = 0;
           random_amount[strip_num] = random_low_bound + random8(random_high_bound - random_low_bound + 1);
           current_colours[strip_num] = highlight->ani[positions[strip_num]];
         } else {
-          Serial.print(F("S \t"));
+          // Serial.print(F("S \t"));
           positions[strip_num] = highlight->len;
           --random_amount[strip_num];
           current_colours[strip_num] = shimmer->ani[positions[strip_num] - highlight->len];
         }
       } else {
         if (positions[strip_num] < highlight->len) {
-          Serial.print(F("HILIGHT\t"));
+          // Serial.print(F("HILIGHT\t"));
           current_colours[strip_num] = highlight->ani[positions[strip_num]];
         } else {
-          Serial.print(F("SHIMMER\t"));
+          // Serial.print(F("SHIMMER\t"));
           current_colours[strip_num] = shimmer->ani[positions[strip_num] - highlight->len];
         }
         ++positions[strip_num];
       }
 
-      Serial.print(F("P"));
-      Serial.print(positions[strip_num]);
-      Serial.print('\t');
-      Serial.print(current_colours[strip_num].hue);
-      Serial.print(' ');
-      Serial.print(current_colours[strip_num].sat);
-      Serial.print(' ');
-      Serial.print(current_colours[strip_num].val);
-      Serial.print('\t');
+      // Serial.print(F("P"));
+      // Serial.print(positions[strip_num]);
+      // Serial.print('\t');
+      // Serial.print(current_colours[strip_num].hue);
+      // Serial.print(' ');
+      // Serial.print(current_colours[strip_num].sat);
+      // Serial.print(' ');
+      // Serial.print(current_colours[strip_num].val);
+      // Serial.print('\t');
     }
 
     // stopping animation that halts each strip
