@@ -454,3 +454,27 @@ class Leaf: public Animation{
       }
     }
 };
+
+class Words: public Animation {
+  private:
+    // CHSV *animation = new CHSV
+
+    typedef struct {
+      CHSV *ani;
+      struct Sym *next;
+    } Sym;
+
+    struct ordering {
+      int i = 0;
+    };
+
+  public:
+
+    Words(uint8_t id, String text) {
+      funcID = id;
+    }
+
+    CHSV* getNext() {
+      return NULL;
+    }
+};

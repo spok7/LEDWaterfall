@@ -40,13 +40,13 @@ const CHSV WHITE(150, 64, 32); // 32
 
 Waterfall *canadaDayFall;
 
-const CHSV CD_WATER(70, 180, 32);
+const CHSV CD_WATER(164, 0, 160);
 
-const CHSV CD_HIGHLIGHT(70, 180, 48);
-const CHSV CD_HIGHLIGHT_RATE(0, 25, 25);
+const CHSV CD_HIGHLIGHT(164, 0, 180);
+const CHSV CD_HIGHLIGHT_RATE(0, 5, 1);
 
-const CHSV CD_SHIMMER(70, 180, 32);
-const CHSV CD_SHIMMER_RATE(25, 0, 0);
+const CHSV CD_SHIMMER(164, 255, 180);
+const CHSV CD_SHIMMER_RATE(5, 35, 7);
 
 
 Leaf *leaf;
@@ -215,7 +215,7 @@ void setup() {
   // initialize Animation objects here; see possible Animations and their constructors in Animation.cpp
   waterfall = new Waterfall(0, WATER, HIGHLIGHT, SHIMMER, HIGHLIGHT_RATE, SHIMMER_RATE, false, false, 3, 7);
   ohml = new OHML(1, ORANGE, WHITE);
-  canadaDayFall = new Waterfall(2, CD_WATER, CD_HIGHLIGHT, CD_SHIMMER, CD_HIGHLIGHT_RATE, CD_SHIMMER_RATE, false, false, 3, 7);
+  canadaDayFall = new Waterfall(2, CD_WATER, CD_HIGHLIGHT, CD_SHIMMER, CD_HIGHLIGHT_RATE, CD_SHIMMER_RATE, false, false, 7, 17);
   leaf = new Leaf(3, RED, WHITE);
   
   Serial.println(F("Initialized Animations")); 
