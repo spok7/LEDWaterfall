@@ -25,33 +25,40 @@ Waterfall *waterfall;
 
 const CHSV WATER(70, 180, 32);
 
-const CHSV HIGHLIGHT(70, 90, 48);
-const CHSV HIGHLIGHT_RATE(0, 15, 2);
-
 const CHSV SHIMMER(20, 180, 32);
 const CHSV SHIMMER_RATE(4, 0, 0);
+
+const CHSV HIGHLIGHT(70, 90, 48);
+const CHSV HIGHLIGHT_RATE(0, 15, 2);
 
 
 OHML *ohml;
 
 const CHSV ORANGE(150, 255, 255); // 255 (don't go below 32)
-const CHSV WHITE(150, 64, 32); // 32
+const CHSV WHITE(150, 64, 72); // 32
 
 
 Waterfall *canadaDayFall;
 
 const CHSV CD_WATER(164, 0, 160);
 
-const CHSV CD_HIGHLIGHT(164, 0, 180);
-const CHSV CD_HIGHLIGHT_RATE(0, 5, 1);
+const CHSV CD_SHIMMER(164, 0, 180);
+const CHSV CD_SHIMMER_RATE(0, 5, 10);
 
-const CHSV CD_SHIMMER(164, 255, 180);
-const CHSV CD_SHIMMER_RATE(5, 35, 7);
+const CHSV CD_HIGHLIGHT(164, 255, 180);
+const CHSV CD_HIGHLIGHT_RATE(5, 13, 1);
 
 
 Leaf *leaf;
+Canada *canada;
 
-const CHSV RED(164, 255, 255);
+const CHSV RED(161, 255, 200);
+
+// Waterfall *rainbow;
+
+// const CHSV R_START(0, 255, 255);
+// const CHSV R_END(255, 255, 255);
+// const CHSV R_RATE(0, 0, 0);
 
 
 /* 
@@ -215,8 +222,10 @@ void setup() {
   // initialize Animation objects here; see possible Animations and their constructors in Animation.cpp
   waterfall = new Waterfall(0, WATER, HIGHLIGHT, SHIMMER, HIGHLIGHT_RATE, SHIMMER_RATE, false, false, 3, 7);
   ohml = new OHML(1, ORANGE, WHITE);
-  canadaDayFall = new Waterfall(2, CD_WATER, CD_HIGHLIGHT, CD_SHIMMER, CD_HIGHLIGHT_RATE, CD_SHIMMER_RATE, false, false, 7, 17);
+  canadaDayFall = new Waterfall(2, CD_WATER, CD_HIGHLIGHT, CD_SHIMMER, CD_HIGHLIGHT_RATE, CD_SHIMMER_RATE, false, false, 1, 1);
   leaf = new Leaf(3, RED, WHITE);
+  canada = new Canada(4, RED, WHITE);
+  // rainbow = new Waterfall(5, R_START, R_END, R_END, R_RATE, R_RATE, false, false, 0, 0);
   
   Serial.println(F("Initialized Animations")); 
    
@@ -243,7 +252,7 @@ void setup() {
 
   // initialize variables that have been written over with the loconet update calls
   dim_current = 0;
-  animation_selector = 0;
+  animation_selector = 4;
 
   Serial.println(F("Initialized Starting Configuration"));
 
@@ -259,5 +268,7 @@ void loop() {
   animation_runner(ohml);
   animation_runner(canadaDayFall);
   animation_runner(leaf);
+  animation_runner(canada);
+  // animation_runner(rainbow);
 }
 

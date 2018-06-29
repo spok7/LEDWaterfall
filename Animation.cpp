@@ -227,7 +227,7 @@ class Waterfall: public Animation {
           stepStrip(strip_num);  
         }
         
-        Serial.println();
+        // Serial.println();
         return current_colours;
   
       } else {
@@ -258,8 +258,9 @@ class OHML: public Animation{
   
   private:
   
-    int
-      run_amount,
+    uint8_t
+      run_amount;
+    uint16_t
       pos,
       len;
     CHSV
@@ -384,8 +385,9 @@ class Leaf: public Animation{
   
   private:
   
-    int
-      run_amount,
+    uint8_t
+      run_amount;
+    uint16_t
       pos,
       len;
     CHSV
@@ -455,26 +457,167 @@ class Leaf: public Animation{
     }
 };
 
-class Words: public Animation {
+
+// a hardcoded animation
+class Canada: public Animation{
+  
   private:
-    // CHSV *animation = new CHSV
+  
+    uint8_t
+      run_amount;
+    uint16_t
+      pos,
+      len;
+    CHSV
+      fg,
+      bg,
+      *current;
+    bool
+      **strip;
 
-    typedef struct {
-      CHSV *ani;
-      struct Sym *next;
-    } Sym;
+    void updateCurrent() {
+      --pos;
+      for (uint8_t i = 0; i < 5; ++i) {
+        current[i] = (strip[pos][i]) ? fg : bg;
+      }
 
-    struct ordering {
-      int i = 0;
-    };
-
+      // Serial.print(F("P"));
+      // Serial.print(pos);
+      // for (int i = 0; i < 5; ++i) {
+      //   Serial.print('\t');
+      //   Serial.print(current[i].hue);
+      //   Serial.print(' ');
+      //   Serial.print(current[i].sat);
+      //   Serial.print(' ');
+      //   Serial.print(current[i].val);
+      //   Serial.print(' ');
+      //   Serial.print(((strip[pos][i]) ? 'F' : 'B'));
+      //   Serial.print('\t');
+      // }
+      // Serial.println();
+    }
+      
   public:
 
-    Words(uint8_t id, String text) {
+    // constructor that initializes class variables and creates the animation
+    Canada(uint8_t id, CHSV base, CHSV background, int num_runs = 1){
       funcID = id;
+      fg = base;
+      bg = background;
+      current = new CHSV[5];
+      // for (uint8_t i = 0; i < 5; ++i) {
+      //   current[i] = bg;
+      //   Serial.print(current[i].hue);
+      //   Serial.print(' ');
+      //   Serial.print(current[i].sat);
+      //   Serial.print(' ');
+      //   Serial.print(current[i].val);
+      //   Serial.print('\t');
+      // }
+
+      run_amount = num_runs;
+      pos = 0;
+
+
+      bool tempStrip[][5] = {symSpace,
+                             symSpace,
+                             symC, 
+                             symSpace,
+                             symA,
+                             symSpace,
+                             symN,
+                             symSpace,
+                             symA,
+                             symSpace,
+                             symD,
+                             symSpace,
+                             symA,
+                             symSpace,
+                             symSpace,
+                             symSpace,
+                             symSpace,
+                             symLeaf,
+                             symSpace,
+                             symSpace};
+
+      len = sizeof(tempStrip) / 5;
+
+      strip = new bool*[len];
+      for (uint8_t i = 0; i < len; ++i) {
+        strip[i] = new bool[5];
+        memcpy(strip[i], tempStrip[i], 5);
+      }
+
+      // for (uint8_t i = 0; i < len; ++i) {
+      //   Serial.print('L');
+      //   Serial.print(i);
+      //   Serial.print('/');
+      //   Serial.print(len);
+      //   Serial.print('\t');
+      //   for (uint8_t j = 0; j < 5; ++j) {
+      //     Serial.print((strip[i][j]) ? '.' : '0');
+      //   }
+      //   Serial.println();
+      // }
     }
 
-    CHSV* getNext() {
-      return NULL;
+    CHSV* getNext(uint8_t currID) {
+      if (pos == 0) {
+        if (/*run_amount > 1 &&*/ currID == funcID) {
+          pos = len;
+          --run_amount;
+          updateCurrent();
+          return current;
+        } else{
+          return NULL;
+        }
+      } else {
+        updateCurrent();
+        return current;
+      }
     }
 };
+
+// class Symbols: public Animation {
+//   private:
+//     // CHSV *animation = new CHSV
+
+//     typedef struct {
+//       CHSV **ani;
+//       struct Sym *next;
+//       String *name;
+
+//     } Sym;
+
+//     Sym symbols;
+//     Sym ordering;
+
+//     Sym *currentSym;
+//     uint8_t pos = 0;
+
+//   public:
+
+//     Symbols(uint8_t id) {
+//       funcID = id;
+//       symbols = {.ani = NULL, .next = NULL, .name = NULL};
+//       currentSym = NULL;
+//     }
+
+//     CHSV* getNext() {
+//       if (currentSym->ani[pos] != NULL) return currentSym->ani[pos++];
+//       if (currentSym->next != NULL) {
+//         currentSym = currentSym->next;
+//       } else {
+
+//       }
+//     }
+
+//     void addWords() {
+//       return;
+//     }
+
+//     void addLeaf() {
+//       return;
+//     }
+
+// };
