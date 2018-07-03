@@ -21,7 +21,7 @@ LocoNetThrottleClass Throttle;
 
 // HSV values: H: Hue, S: Saturation (whiteness), V: Value (brighness)
 
-Waterfall *waterfall;
+Animation *waterfall;
 
 const CHSV WATER(70, 180, 32);
 
@@ -32,13 +32,13 @@ const CHSV HIGHLIGHT(70, 90, 48);
 const CHSV HIGHLIGHT_RATE(0, 15, 2);
 
 
-OHML *ohml;
+Animation *ohml;
 
 const CHSV ORANGE(150, 255, 255); // 255 (don't go below 32)
 const CHSV WHITE(150, 64, 72); // 32
 
 
-Waterfall *canadaDayFall;
+Animation *canadaDayFall;
 
 const CHSV CD_WATER(164, 0, 160);
 
@@ -49,10 +49,11 @@ const CHSV CD_HIGHLIGHT(164, 255, 180);
 const CHSV CD_HIGHLIGHT_RATE(5, 13, 1);
 
 
-Leaf *leaf;
-Canada *canada;
+Animation *canadaText;
 
 const CHSV RED(161, 255, 200);
+
+Animation *rainbow;
 
 // Waterfall *rainbow;
 
@@ -136,14 +137,14 @@ void flow(int wait_time) {
 
 
 // user-defined callback functions
-void notifyThrottleAddress(uint8_t UserData, TH_STATE State, uint16_t Address, uint8_t Slot)    {Serial.print(F("Address: "));     Serial.println(Address);}
-void notifyThrottleSlotStatus(uint8_t UserData, uint8_t Status)                                 {Serial.print(F("Slot Status: ")); Serial.println(Status);}
-void notifyThrottleError(uint8_t UserData, TH_ERROR Error)                                      {Serial.print(F("Error: "));       Serial.println(Throttle.getErrorStr(Error));}
-void notifyThrottleState(uint8_t UserData, TH_STATE PrevState, TH_STATE State)                  {Serial.print(F("State: "));       Serial.println(Throttle.getStateStr(State));}
-void notifyThrottleSpeed(uint8_t UserData, TH_STATE State, uint8_t Speed)                       {Serial.print(F("Speed: "));       Serial.println(Speed); dim_target = 2 * (127 - Speed);}
-void notifyThrottleDirection(uint8_t UserData, TH_STATE State, uint8_t Direction)               {Serial.print(F("Direction: "));   Serial.println(not_visible = Direction);}
-void notifyThrottleFunction(uint8_t UserData, uint8_t Function, uint8_t Value)                  {Serial.print(F("Function: "));    Serial.println(Function);
-                                                                                                 animation_selector = (Function < NUM_ANIMATIONS) ? Function : animation_selector;}
+void notifyThrottleAddress(uint8_t UserData, TH_STATE State, uint16_t Address, uint8_t Slot)    {}//{Serial.print(F("Address: "));     Serial.println(Address);}
+void notifyThrottleSlotStatus(uint8_t UserData, uint8_t Status)                                 {}//{Serial.print(F("Slot Status: ")); Serial.println(Status);}
+void notifyThrottleError(uint8_t UserData, TH_ERROR Error)                                      {}//{Serial.print(F("Error: "));       Serial.println(Throttle.getErrorStr(Error));}
+void notifyThrottleState(uint8_t UserData, TH_STATE PrevState, TH_STATE State)                  {}//{Serial.print(F("State: "));       Serial.println(Throttle.getStateStr(State));}
+void notifyThrottleSpeed(uint8_t UserData, TH_STATE State, uint8_t Speed)                       {}//{Serial.print(F("Speed: "));       Serial.println(Speed); dim_target = 2 * (127 - Speed);}
+void notifyThrottleDirection(uint8_t UserData, TH_STATE State, uint8_t Direction)               {}//{Serial.print(F("Direction: "));   Serial.println(not_visible = Direction);}
+void notifyThrottleFunction(uint8_t UserData, uint8_t Function, uint8_t Value)                  //{Serial.print(F("Function: "));    Serial.println(Function);
+                                                                                                 {animation_selector = (Function < NUM_ANIMATIONS) ? Function : animation_selector;}
 
 
 // used for printing and processing LocoNet packets
@@ -152,22 +153,22 @@ void lnUpdate() {
   if (LnPacket) {
     
     // First print out the packet in HEX
-    Serial.print(F("RX: "));
-    uint8_t msgLen = getLnMsgSize(LnPacket);
-    for (uint8_t x = 0; x < msgLen; x++)
-    {
-      uint8_t val = LnPacket->data[x];
-      // Print a leading 0 if less than 16 to make 2 HEX digits
-      if (val < 16)
-        Serial.print('0');
+    // Serial.print(F("RX: "));
+    // uint8_t msgLen = getLnMsgSize(LnPacket);
+    // for (uint8_t x = 0; x < msgLen; x++)
+    // {
+    //   uint8_t val = LnPacket->data[x];
+    //   // Print a leading 0 if less than 16 to make 2 HEX digits
+    //   if (val < 16)
+    //     Serial.print('0');
 
-      Serial.print(val, HEX);
-      Serial.print(' ');
-    }
+    //   Serial.print(val, HEX);
+    //   Serial.print(' ');
+    // }
 
     // If this packet was not a Switch or Sensor Message then print a new line, and process it as a Throttle Message
     if (!LocoNet.processSwitchSensorMessage(LnPacket)) {
-      Serial.println();
+      // Serial.println();
       Throttle.processMessage(LnPacket);
     }
   }
@@ -223,8 +224,8 @@ void setup() {
   waterfall = new Waterfall(0, WATER, HIGHLIGHT, SHIMMER, HIGHLIGHT_RATE, SHIMMER_RATE, false, false, 3, 7);
   ohml = new OHML(1, ORANGE, WHITE);
   canadaDayFall = new Waterfall(2, CD_WATER, CD_HIGHLIGHT, CD_SHIMMER, CD_HIGHLIGHT_RATE, CD_SHIMMER_RATE, false, false, 1, 1);
-  leaf = new Leaf(3, RED, WHITE);
-  canada = new Canada(4, RED, WHITE);
+  canadaText = new Canada(3, RED, WHITE);
+  rainbow = new Pride(4);
   // rainbow = new Waterfall(5, R_START, R_END, R_END, R_RATE, R_RATE, false, false, 0, 0);
   
   Serial.println(F("Initialized Animations")); 
@@ -260,6 +261,8 @@ void setup() {
   Serial.println(freeMemory());
   
   Serial.println(F("\nExiting Setup\n"));
+
+  // Serial.end();
 }
 
 // continuous loop
@@ -267,8 +270,7 @@ void loop() {
   animation_runner(waterfall);
   animation_runner(ohml);
   animation_runner(canadaDayFall);
-  animation_runner(leaf);
-  animation_runner(canada);
-  // animation_runner(rainbow);
+  animation_runner(canadaText);
+  animation_runner(rainbow);
 }
 

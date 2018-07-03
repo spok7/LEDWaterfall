@@ -150,14 +150,6 @@ class Waterfall: public Animation {
       // Serial.print('\t');
     }
 
-    // stopping animation that halts each strip
-    void stop_gradual() {
-      for (int strip_num = 0; strip_num < STRIP_AMOUNT; ++strip_num) {
-        stepStrip(strip_num);  
-        if (positions[strip_num] != 0) ++positions[strip_num];
-      }
-    }
-
     // stopping animation that resets all strips instantly
     void stop_quick() {
       for (int strip_num = 0; strip_num < STRIP_AMOUNT; ++strip_num) {
@@ -194,7 +186,6 @@ class Waterfall: public Animation {
       Serial.print(highlight->len);
       Serial.print(F(" and "));
       Serial.println(shimmer->len);
-
       Serial.println();
 
       for (uint16_t i = 0; i < highlight->len; ++i) {
@@ -231,19 +222,6 @@ class Waterfall: public Animation {
         return current_colours;
   
       } else {
-
-        // // check if animation is complete
-        // bool complete = true;
-        // for (int strip_num = 0; strip_num < STRIP_AMOUNT; ++strip_num) {
-        //   if (positions[strip_num] != 0) {
-        //     complete = false;
-        //     break;
-        //   }
-        // }
-
-        // if (complete) return NULL;
-
-        // play stopping animation
         stop_quick();
         return NULL;
       }
@@ -266,7 +244,16 @@ class OHML: public Animation{
     CHSV
       fg,
       bg,
+      *current;
+    bool
       strip[64][STRIP_AMOUNT];
+
+    void updateCurrent() {
+      --pos;
+      for (uint8_t i = 0; i < 5; ++i) {
+        current[i] = (strip[pos][i]) ? fg : bg;
+      }
+    }
       
   public:
 
@@ -275,93 +262,36 @@ class OHML: public Animation{
       funcID = id;
       fg = base;
       bg = background;
+
       run_amount = num_runs;
-      len = 64;
       pos = 0;
 
-      if (STRIP_AMOUNT == 5) {
-      
-        CHSV temp_array[len][5] {
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-  
-          //O
-          {bg, fg, fg, fg, bg},
-          {fg, fg, bg, fg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, fg, bg, fg, fg},
-          {bg, fg, fg, fg, bg},
-  
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-  
-          //H
-          {fg, bg, bg, bg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, fg, fg, fg, fg},
-          {fg, fg, fg, fg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, bg, bg, bg, fg},
-  
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-        
-          //M
-          {fg, bg, bg, bg, fg},
-          {fg, fg, bg, fg, fg},
-          {fg, fg, fg, fg, fg},
-          {fg, bg, fg, bg, fg},
-          {fg, bg, fg, bg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, bg, bg, bg, fg},
-          {fg, bg, bg, bg, fg},
-       
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-  
-          //L
-          {fg, bg, bg, bg, bg},
-          {fg, bg, bg, bg, bg},
-          {fg, bg, bg, bg, bg},
-          {fg, bg, bg, bg, bg},
-          {fg, bg, bg, bg, bg},
-          {fg, bg, bg, bg, bg},
-          {fg, bg, bg, bg, bg},
-          {fg, fg, fg, fg, fg},
-          {fg, fg, fg, fg, fg},
-        
-          //space
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg}
-        };
-  
-        memcpy(strip, temp_array, sizeof(CHSV) * len * STRIP_AMOUNT);
+      bool temp_array[][5] {symSpace,
+                            symSpace,
+                            symO, 
+                            symSpace,
+                            symH,
+                            symSpace,
+                            symM,
+                            symSpace,
+                            symL,
+                            symSpace,
+                            symSpace};
+
+      len = 64;
+
+      memcpy(strip, temp_array, sizeof(bool) * len * STRIP_AMOUNT);
+
+      for (uint8_t i = 0; i < len; ++i) {
+        Serial.print('L');
+        Serial.print(i);
+        Serial.print('/');
+        Serial.print(len);
+        Serial.print('\t');
+        for (uint8_t j = 0; j < 5; ++j) {
+          Serial.print((strip[i][j]) ? '.' : '0');
+        }
+        Serial.println();
       }
     }
 
@@ -370,18 +300,21 @@ class OHML: public Animation{
         if (/*run_amount > 1 &&*/ currID == funcID) {
           pos = len;
           --run_amount;
-          return strip[--pos];
+          updateCurrent();
+          return current;
         } else{
           return NULL;
         }
       } else {
-        return strip[--pos];
+        updateCurrent();
+        return current;
       }
     }
 };
 
+
 // a hardcoded animation
-class Leaf: public Animation{
+class OHML2: public Animation{
   
   private:
   
@@ -393,52 +326,62 @@ class Leaf: public Animation{
     CHSV
       fg,
       bg,
-      strip[24][STRIP_AMOUNT];
+      *current;
+    bool
+      **strip;
+
+    void updateCurrent() {
+      --pos;
+      for (uint8_t i = 0; i < STRIP_AMOUNT; ++i) {
+        current[i] = (strip[pos][i]) ? fg : bg;
+      }
+    }
       
   public:
 
     // constructor that initializes class variables and creates the animation
-    Leaf(uint8_t id, CHSV base, CHSV background, int num_runs = 1){
+    OHML2(uint8_t id, CHSV base, CHSV background, int num_runs = 1){
       funcID = id;
       fg = base;
       bg = background;
+
       run_amount = num_runs;
-      len = 24;
       pos = 0;
 
-      if (STRIP_AMOUNT == 5) {
-      
-        CHSV temp_array[len][5] {
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-  
-          // leaf
-          {bg, bg, fg, bg, bg},
-          {bg, fg, fg, fg, bg},
-          {bg, bg, fg, bg, bg},
-          {fg, bg, fg, bg, fg},
-          {fg, fg, fg, fg, fg},
-          {bg, fg, fg, fg, bg},
-          {bg, bg, fg, bg, bg},
-          {bg, bg, fg, bg, bg},
+      bool tempStrip[][5] {symSpace,
+                           symSpace,
+                           symO, 
+                           symSpace,
+                           symH,
+                           symSpace,
+                           symM,
+                           symSpace,
+                           symL,
+                           symSpace,
+                           symSpace};
 
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg},
-          {bg, bg, bg, bg, bg}
-        };
-  
-        memcpy(strip, temp_array, sizeof(CHSV) * len * STRIP_AMOUNT);
+      len = 64;
+
+      memcpy(strip, tempStrip, sizeof(bool) * len * STRIP_AMOUNT);
+
+      // len = sizeof(tempStrip) / 5;
+
+      // strip = new bool*[len];
+      // for (uint8_t i = 0; i < len; ++i) {
+      //   strip[i] = new bool[5];
+      //   memcpy(strip[i], tempStrip[i], 5);
+      // }
+
+      for (uint8_t i = 0; i < len; ++i) {
+        Serial.print('L');
+        Serial.print(i);
+        Serial.print('/');
+        Serial.print(len);
+        Serial.print('\t');
+        for (uint8_t j = 0; j < 5; ++j) {
+          Serial.print((strip[i][j]) ? '.' : '0');
+        }
+        Serial.println();
       }
     }
 
@@ -447,16 +390,17 @@ class Leaf: public Animation{
         if (/*run_amount > 1 &&*/ currID == funcID) {
           pos = len;
           --run_amount;
-          return strip[--pos];
+          updateCurrent();
+          return current;
         } else{
           return NULL;
         }
       } else {
-        return strip[--pos];
+        updateCurrent();
+        return current;
       }
     }
 };
-
 
 // a hardcoded animation
 class Canada: public Animation{
@@ -480,21 +424,6 @@ class Canada: public Animation{
       for (uint8_t i = 0; i < 5; ++i) {
         current[i] = (strip[pos][i]) ? fg : bg;
       }
-
-      // Serial.print(F("P"));
-      // Serial.print(pos);
-      // for (int i = 0; i < 5; ++i) {
-      //   Serial.print('\t');
-      //   Serial.print(current[i].hue);
-      //   Serial.print(' ');
-      //   Serial.print(current[i].sat);
-      //   Serial.print(' ');
-      //   Serial.print(current[i].val);
-      //   Serial.print(' ');
-      //   Serial.print(((strip[pos][i]) ? 'F' : 'B'));
-      //   Serial.print('\t');
-      // }
-      // Serial.println();
     }
       
   public:
@@ -504,16 +433,6 @@ class Canada: public Animation{
       funcID = id;
       fg = base;
       bg = background;
-      current = new CHSV[5];
-      // for (uint8_t i = 0; i < 5; ++i) {
-      //   current[i] = bg;
-      //   Serial.print(current[i].hue);
-      //   Serial.print(' ');
-      //   Serial.print(current[i].sat);
-      //   Serial.print(' ');
-      //   Serial.print(current[i].val);
-      //   Serial.print('\t');
-      // }
 
       run_amount = num_runs;
       pos = 0;
@@ -578,46 +497,24 @@ class Canada: public Animation{
     }
 };
 
-// class Symbols: public Animation {
-//   private:
-//     // CHSV *animation = new CHSV
+class Pride: public Animation {
+  private:
+    CHSV* current;
 
-//     typedef struct {
-//       CHSV **ani;
-//       struct Sym *next;
-//       String *name;
+  public:
 
-//     } Sym;
+    Pride(uint8_t id) {
+      funcID = id;
+      CHSV colour = CHSV(255,255,255);
+      for (int i = 0; i < STRIP_AMOUNT; ++i) {
+        current[i] = colour;
+      }
+    }
 
-//     Sym symbols;
-//     Sym ordering;
-
-//     Sym *currentSym;
-//     uint8_t pos = 0;
-
-//   public:
-
-//     Symbols(uint8_t id) {
-//       funcID = id;
-//       symbols = {.ani = NULL, .next = NULL, .name = NULL};
-//       currentSym = NULL;
-//     }
-
-//     CHSV* getNext() {
-//       if (currentSym->ani[pos] != NULL) return currentSym->ani[pos++];
-//       if (currentSym->next != NULL) {
-//         currentSym = currentSym->next;
-//       } else {
-
-//       }
-//     }
-
-//     void addWords() {
-//       return;
-//     }
-
-//     void addLeaf() {
-//       return;
-//     }
-
-// };
+    CHSV *getNext(uint8_t currID) {
+      for (int i = 0; i < STRIP_AMOUNT; ++i) {
+        current[i].hue += 5;
+      }
+      return current;
+    }
+};
